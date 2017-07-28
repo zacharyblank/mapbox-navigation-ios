@@ -19,7 +19,6 @@ class RouteManeuverViewController: UIViewController {
     var step: RouteStep? {
         didSet {
             if isViewLoaded {
-                roadCode = step?.codes?.first ?? step?.destinationCodes?.first ?? step?.destinations?.first
                 updateStreetNameForStep()
             }
         }
@@ -51,6 +50,11 @@ class RouteManeuverViewController: UIViewController {
         return distance != nil ? 1 : 2
     }
     
+    var roadDescription: NSAttributedString? {
+        didSet {
+            
+        }
+    }
     var roadCode: String? {
         didSet {
             guard roadCode != oldValue, let components = roadCode?.components(separatedBy: " ") else {
@@ -178,16 +182,53 @@ class RouteManeuverViewController: UIViewController {
     }
     
     func updateStreetNameForStep() {
+        let text: String
         if let currentLeg = leg, let destinationName = currentLeg.destination.name, let step = step, step.maneuverType == .arrive {
-            destinationLabel.unabridgedText = destinationName
+            text = destinationName
         } else if let destinations = step?.destinations {
-            destinationLabel.unabridgedText = destinations.joined(separator: NSLocalizedString("DESTINATION_DELIMITER", bundle: .mapboxNavigation, value: " / ", comment: "Delimiter between multiple destinations"))
+            text = destinations.joined(separator: NSLocalizedString("DESTINATION_DELIMITER", bundle: .mapboxNavigation, value: " / ", comment: "Delimiter between multiple destinations"))
         } else if let step = step, step.isNumberedMotorway, let codes = step.codes {
-            destinationLabel.unabridgedText = codes.joined(separator: NSLocalizedString("REF_DELIMITER", bundle: .mapboxNavigation, value: " / ", comment: "Delimiter between route numbers in a road concurrency"))
+            text = codes.joined(separator: NSLocalizedString("REF_DELIMITER", bundle: .mapboxNavigation, value: " / ", comment: "Delimiter between route numbers in a road concurrency"))
         } else if let name = step?.names?.first {
-            destinationLabel.unabridgedText = name
-        } else if let step = step {
-            destinationLabel.unabridgedText = routeStepFormatter.string(for: step)
+            text = name
+        } else if let step = step, let formattedString = routeStepFormatter.string(for: step) {
+            text = formattedString
+        } else {
+            return
+        }
+        
+        roadCode = step?.codes?.first ?? step?.destinationCodes?.first ?? step?.destinations?.first
+        if let roadCode = roadCode {
+            destinationLabel.unabridgedAttributedText = attributedRoadDescription(text: text)
+        } else {
+            destinationLabel.unabridgedText = attributedRoadDescription(text: text)
+        }
+    }
+    
+    func attributedRoadDescription(text: String?) -> NSAttributedString? {
+        if let roadCodes = step?.destinationCodes ?? step?.destinations ?? step?.codes {
+            getShieldImages(depicting: roadCodes)
+        }
+        let attributedString = NSMutableAttributedString(string: text)
+        return attributedString
+    }
+    
+    func getShieldImages(depicting roadCodes: [String]) {
+        for roadCode in roadCodes {
+            getShieldImage(depicting: roadCode)
+        }
+    }
+    
+    func getShieldImage(depicting roadCode: String) {
+        guard let components = roadCode.components(separatedBy: " ") else {
+            return
+        }
+        
+        if components.count == 2 || (components.count == 3 && ["North", "South", "East", "West", "Nord", "Sud", "Est", "Ouest"].contains(components[2])) {
+            shieldAPIDataTask = dataTaskForShieldImage(network: components[0], number: components[1], height: 32 * UIScreen.main.scale) { [weak self] (image) in
+                self?.shieldImage = image
+            }
+            shieldAPIDataTask?.resume()
         }
     }
     

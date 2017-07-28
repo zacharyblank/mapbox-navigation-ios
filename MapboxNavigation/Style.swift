@@ -369,6 +369,16 @@ public class DestinationLabel: StylableLabel {
             super.text = unabridgedText?.abbreviated(toFit: availableBounds(), font: font)
         }
     }
+    var unabridgedAttributedText: NSAttributedString? {
+        get {
+            return attributedText
+        }
+        set {
+            let unabridgedAttributedText = newValue?.mutableCopy() as! NSMutableAttributedString
+            unabridgedAttributedText.abbreviate(toFit: availableBounds())
+            attributedText = unabridgedAttributedText
+        }
+    }
 }
 
 /// :nodoc:

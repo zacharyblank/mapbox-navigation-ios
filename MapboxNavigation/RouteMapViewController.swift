@@ -238,7 +238,6 @@ class RouteMapViewController: UIViewController {
         guard step == controller.step else { return }
         
         controller.notifyDidChange(routeProgress: routeProgress, secondsRemaining: secondsRemaining)
-        controller.roadCode = step.codes?.first ?? step.destinationCodes?.first ?? step.destinations?.first
         
         // Move the overview button if the lane views become visible
         if !controller.isPagingThroughStepList {
@@ -471,7 +470,6 @@ extension RouteMapViewController: RoutePageViewControllerDelegate {
         maneuverViewController.turnArrowView.step = step
         maneuverViewController.shieldImage = nil
         maneuverViewController.distance = step.distance > 0 ? step.distance : nil
-        maneuverViewController.roadCode = step.codes?.first ?? step.destinationCodes?.first ?? step.destinations?.first
         maneuverViewController.updateStreetNameForStep()
         
         maneuverViewController.showLaneView(step: step)
