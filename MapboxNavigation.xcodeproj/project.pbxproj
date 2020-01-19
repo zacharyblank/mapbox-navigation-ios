@@ -595,6 +595,15 @@
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DA6F735623D4DE670056252D /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 7;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
@@ -1931,10 +1940,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = C5ADFBDD1DDCC7840011824B /* Build configuration list for PBXNativeTarget "MapboxCoreNavigation" */;
 			buildPhases = (
+				DA6F735523D4DE570056252D /* Hack Around Missing Include Statement in MapboxNavigationNative */,
 				C5ADFBC41DDCC7840011824B /* Sources */,
 				C5ADFBC61DDCC7840011824B /* Headers */,
 				C5ADFBC71DDCC7840011824B /* Resources */,
 				35A7DBEB1E3A1C59000BAB5C /* Frameworks */,
+				DA6F735623D4DE670056252D /* CopyFiles */,
 			);
 			buildRules = (
 			);
@@ -2360,6 +2371,25 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "# This Run Script build phase helps to keep the navigation SDK’s developers from exposing their own access tokens during development. See <https://www.mapbox.com/help/ios-private-access-token/> for more information. If you are developing an application privately, you may add the MGLMapboxAccessToken key directly to your Info.plist file and delete this build phase.\n\ntoken_file=~/.mapbox\ntoken_file2=~/mapbox\ntoken=\"$(cat $token_file 2>/dev/null || cat $token_file2 2>/dev/null)\"\nif [ \"$token\" ]; then\n  plutil -replace MGLMapboxAccessToken -string $token \"$TARGET_BUILD_DIR/$INFOPLIST_PATH\"\nelse\n  echo 'warning: Missing Mapbox access token'\n  open 'https://www.mapbox.com/account/access-tokens/'\n  echo \"warning: Get an access token from <https://www.mapbox.com/account/access-tokens/>, then create a new file at $token_file or $token_file2 that contains the access token.\"\nfi\n";
+		};
+		DA6F735523D4DE570056252D /* Hack Around Missing Include Statement in MapboxNavigationNative */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/Carthage/Build/iOS/MapboxNavigationNative.framework/Headers/MapboxNavigationNative.h",
+			);
+			name = "Hack Around Missing Include Statement in MapboxNavigationNative";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# https://github.com/mapbox/mapbox-location-native/pull/54\ngrep 'MapboxLocationNative.h' $SRCROOT/Carthage/Build/iOS/MapboxNavigationNative.framework/Headers/MapboxNavigationNative.h\nif [ $? -ne 0 ]; then \n  echo '#import \"MapboxLocationNative.h\"' >> $SRCROOT/Carthage/Build/iOS/MapboxNavigationNative.framework/Headers/MapboxNavigationNative.h\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
