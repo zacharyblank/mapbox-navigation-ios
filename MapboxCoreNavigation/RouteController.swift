@@ -186,7 +186,7 @@ open class RouteController: NSObject {
         
         rawLocation = locations.last
         
-        locations.forEach { navigator.updateLocation(for: MBFixLocation($0)) }
+        locations.forEach { navigator.updateLocation(for: FixLocation($0)) }
         
         let status = navigator.getStatusForTimestamp(location.timestamp)
         

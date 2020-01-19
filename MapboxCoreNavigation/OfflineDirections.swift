@@ -120,7 +120,8 @@ public class NavigationDirections: Directions {
      */
     public func configureRouter(tilesURL: URL, completionHandler: @escaping NavigationDirectionsCompletionHandler) {
         NavigationDirectionsConstants.offlineSerialQueue.sync {
-            let tileCount = self.navigator.configureRouter(forTilesPath: tilesURL.path)
+            let params = RouterParams(tilesPath: tilesURL.path, inMemoryTileCache: nil, mapMatchingSpatialCache: nil, threadsCount: nil, endpointConfig: nil)
+            let tileCount = self.navigator.configureRouter(for: params, httpInterface: nil)
             DispatchQueue.main.async {
                 completionHandler(tileCount)
             }
