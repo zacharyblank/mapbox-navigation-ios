@@ -222,7 +222,10 @@ class InstructionPresenter {
         if let hostView = dataSource as? UIView, let hostWindow = hostView.window {
             window = hostWindow
         } else {
-            window = UIApplication.shared.delegate!.window!!
+            guard let appDelegate = UIApplication.shared.delegate else { return nil }
+            guard let appWindow = appDelegate.window! else { return nil }
+            
+            window = appWindow
         }
         
         // Temporarily add the view to the view hierarchy for UIAppearance to work its magic.
